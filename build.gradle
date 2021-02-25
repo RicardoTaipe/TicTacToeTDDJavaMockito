@@ -19,4 +19,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    include '**/*Spec.class'
+}
+
+task testInteg(type: Test) {
+    include '**/*Integ.class'
 }

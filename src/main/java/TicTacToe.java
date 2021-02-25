@@ -1,5 +1,7 @@
 import mongo.TicTacToeBean;
 
+import java.net.UnknownHostException;
+
 public class TicTacToe {
     private Character[][] board = {{'\0', '\0', '\0'}, {'\0', '\0', '\0'}, {'\0', '\0', '\0'}};
     private char lastPlayer = '\0';
@@ -16,6 +18,10 @@ public class TicTacToe {
         if (!ticTacToeCollection.drop()) {
             throw new RuntimeException("Dropping DB collection failed");
         }
+    }
+
+    public TicTacToe() throws UnknownHostException {
+        this(new TicTacToeCollection());
     }
 
     public String play(int x, int y) {
