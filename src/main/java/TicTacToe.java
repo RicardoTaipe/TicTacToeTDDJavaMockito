@@ -1,13 +1,28 @@
+import mongo.TicTacToeBean;
+
 public class TicTacToe {
     private Character[][] board = {{'\0', '\0', '\0'}, {'\0', '\0', '\0'}, {'\0', '\0', '\0'}};
     private char lastPlayer = '\0';
     private static final int SIZE = 3;
+    private TicTacToeCollection ticTacToeCollection;
+    private int turn = 0;
+
+    protected TicTacToeCollection getTicTacToeCollection() {
+        return ticTacToeCollection;
+    }
+
+    protected TicTacToe(TicTacToeCollection collection) {
+        ticTacToeCollection = collection;
+        if (!ticTacToeCollection.drop()) {
+            throw new RuntimeException("Dropping DB collection failed");
+        }
+    }
 
     public String play(int x, int y) {
         checkAxis(x);
         checkAxis(y);
         lastPlayer = nextPlayer();
-        setBox(x, y, lastPlayer);
+        setBox(new TicTacToeBean(++turn, x, y, lastPlayer));
         if (isWin(x, y)) {
             return lastPlayer + " is the winner";
         } else if (isDraw()) {
@@ -33,11 +48,14 @@ public class TicTacToe {
                 diagonal2 == playerTotal;
     }
 
-    public void setBox(int x, int y, char lastPlayer) {
-        if (board[x - 1][y - 1] != '\0') {
+    private void setBox(TicTacToeBean bean) {
+        if (board[bean.getX() - 1][bean.getY() - 1] != '\0') {
             throw new RuntimeException("Box is occupied");
         } else {
-            board[x - 1][y - 1] = lastPlayer;
+            board[bean.getX() - 1][bean.getY() - 1] = lastPlayer;
+            if (!getTicTacToeCollection().saveMove(bean)) {
+                throw new RuntimeException("Saving to DB failed");
+            }
         }
     }
 
